@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>美食发现雷达 · 干饭人觅食提示词库</title>
+<style>
+  :root{
+    --bg:#FAF4EC; --bg2:#F5EADC; --ink:#3D2A20; --ink2:#8A6F5C;
+    --accent:#C8623A; --accent-soft:#E8935B; --accent-deep:#A94E2C;
+    --card:#FFFDF9; --line:#EADFCE; --chip:#F4E7D7; --ok:#4E7A3A;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{max-width:100%; overflow-x:hidden;}
+  body{
+    margin:0; color:var(--ink); line-height:1.6;
+    background:
+      radial-gradient(1000px 400px at 85% -50px, #F7E3CE 0%, transparent 60%),
+      radial-gradient(800px 380px at -10% 120px, #F3E6D8 0%, transparent 55%),
+      var(--bg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  }
+  .container{max-width:1120px; margin:0 auto; padding:0 16px;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:36px 0 10px;}
+  .badge{display:inline-block; background:var(--chip); border:1px solid var(--line); color:var(--accent-deep);
+    font-size:13px; font-weight:700; padding:5px 12px; border-radius:999px; letter-spacing:1px;}
+  h1{font-size:clamp(30px,6.4vw,46px); line-height:1.2; margin:12px 0 6px; letter-spacing:1px;}
+  h1 .hl{color:var(--accent); position:relative;}
+  .hero .sub{color:var(--ink2); font-size:15px; margin:0 0 8px; max-width:640px;}
+  .stats{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 4px;}
+  .stats span{background:#fff; border:1px solid var(--line); border-radius:10px; padding:4px 10px; font-size:13px; color:var(--ink2);}
+
+  /* ---------- 收录面板 ---------- */
+  .collect{background:var(--card); border:1.5px solid var(--line); border-radius:20px;
+    padding:16px; margin:18px 0 6px; box-shadow:0 10px 30px rgba(120,72,40,.07);}
+  .collect h2{margin:0 0 10px; font-size:17px; display:flex; align-items:center; gap:8px;}
+  .collect h2 .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(200,98,58,.18);}
+  .collect .row{display:grid; gap:10px; margin-bottom:10px;}
+  .collect .row.two{grid-template-columns:1fr 1fr;}
+  @media(max-width:560px){ .collect .row.two{grid-template-columns:1fr;} }
+  .collect input,.collect select{
+    width:100%; height:46px; font-size:16px; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:12px; padding:0 12px; background:#FFF9F1; outline:none;
+  }
+  .collect input:focus,.collect select:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(200,98,58,.12);}
+  .collect .btns{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media(max-width:560px){ .collect .btns{grid-template-columns:1fr;} }
+  .btn{border:none; cursor:pointer; border-radius:12px; font-size:15px; font-weight:700; height:48px;
+    display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .08s, box-shadow .15s;}
+  .btn:active{transform:scale(.97);}
+  .btn-main{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-soft) 100%); color:#fff; box-shadow:0 6px 16px rgba(200,98,58,.3);}
+  .btn-ai{background:#FFF3E6; color:var(--accent-deep); border:1.5px dashed var(--accent-soft);}
+  .collect .hint{font-size:12.5px; color:var(--ink2); margin:10px 2px 0;}
+
+  /* ---------- 这页能干嘛 ---------- */
+  .howto{margin:22px 0 4px;}
+  .howto h2,.pool h2{font-size:20px; margin:0 0 4px;}
+  .howto .lead{color:var(--ink2); font-size:14px; margin:0 0 12px;}
+  .how-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  @media(max-width:860px){ .how-grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:480px){ .how-grid{grid-template-columns:1fr;} }
+  .how{background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px;}
+  .how b{display:block; font-size:14px; margin-bottom:2px;}
+  .how p{margin:0; font-size:12.5px; color:var(--ink2);}
+
+  /* ---------- 筛选 ---------- */
+  .filterbar{position:sticky; top:0; z-index:40; margin:20px 0 14px;
+    background:#FAF4EC; padding:10px 0 8px;
+    border-bottom:1px solid var(--line);}
+  .chips{display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto; border:1.5px solid var(--line); background:#fff; color:var(--ink2);
+    border-radius:999px; padding:7px 14px; font-size:13.5px; font-weight:600; cursor:pointer; white-space:nowrap;}
+  .chip.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .chip .n{font-size:11px; opacity:.75; margin-left:3px;}
+
+  /* ---------- 卡片池 ---------- */
+  .grid{display:grid; grid-template-columns:1fr; gap:18px; padding-bottom:28px;}
+  @media(min-width:880px){ .grid{grid-template-columns:1fr 1fr; } }
+  .card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; overflow:hidden;
+    box-shadow:0 3px 10px rgba(120,72,40,.05); display:flex; flex-direction:column; scroll-margin-top:70px;}
+  .card.user-new{animation:pop .5s ease;}
+  @keyframes pop{0%{transform:scale(.96); opacity:.4;} 100%{transform:scale(1); opacity:1;}}
+  .card-head{padding:14px 16px 10px;}
+  .head-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .no{background:var(--accent); color:#fff; font-weight:800; font-size:12px; border-radius:8px; padding:2px 8px; letter-spacing:.5px;}
+  .no.mine{background:var(--ok);}
+  .scene-tag{background:var(--chip); color:var(--accent-deep); font-size:12.5px; font-weight:700;
+    border-radius:999px; padding:3px 10px;}
+  .card-head h3{margin:8px 0 2px; font-size:18px; line-height:1.35;}
+  .card-head .tagline{margin:0; font-size:13px; color:var(--ink2);}
+  .del{margin-left:auto; background:#FBEAE0; color:#B03A1E; border:none; border-radius:10px;
+    padding:6px 12px; font-size:13px; font-weight:700; cursor:pointer;}
+  /* 轮播 */
+  .car{position:relative; user-select:none;}
+  .track{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; cursor:grab;}
+  .track::-webkit-scrollbar{display:none;}
+  .track.dragging{scroll-snap-type:none; cursor:grabbing;}
+  .slide{flex:0 0 100%; scroll-snap-align:start; position:relative; margin:0;}
+  .slide img{width:100%; aspect-ratio:4/3; object-fit:cover; display:block; pointer-events:none;}
+  .slide .sname{position:absolute; left:10px; bottom:10px; background:rgba(30,16,8,.72); color:#fff;
+    font-size:12.5px; padding:4px 10px; border-radius:999px;}
+  .slide .zoom{position:absolute; right:10px; bottom:10px; background:rgba(30,16,8,.45); color:#fff;
+    width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;}
+  .navb{position:absolute; top:50%; transform:translateY(-50%); z-index:5; width:36px; height:36px;
+    border-radius:50%; border:none; background:rgba(255,253,249,.9); color:var(--ink); font-size:16px;
+    cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.18); display:none; align-items:center; justify-content:center;}
+  .navb.prev{left:10px;} .navb.next{right:10px;}
+  @media(hover:hover) and (pointer:fine){ .navb{display:flex;} }
+  .dots{display:flex; gap:6px; justify-content:center; padding:10px 0 2px;}
+  .dot{width:8px; height:8px; border-radius:99px; background:#DCC9B2; border:none; cursor:pointer; padding:0; transition:all .25s;}
+  .dot.active{width:22px; background:var(--accent);}
+  /* 店铺信息（随轮播切换） */
+  .info{padding:4px 16px 16px; display:flex; flex-direction:column; flex:1;}
+  .info .swap{animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:none;}}
+  .store-row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin:6px 0 2px;}
+  .store-row .sn{font-size:16.5px; font-weight:800;}
+  .store-row .dish{font-size:13px; color:var(--accent-deep); background:#FBEEDF; border-radius:8px; padding:2px 8px;}
+  .meta{font-size:12.5px; color:var(--ink2); margin:0 0 8px;}
+  .promptBox{position:relative; background:#FBF1E4; border:1.5px dashed var(--accent-soft); border-radius:14px;
+    padding:12px 12px 10px; font-size:13.5px; line-height:1.75; white-space:pre-wrap; word-break:break-all; flex:1;}
+  .promptBox .ph{position:absolute; top:-9px; left:12px; background:var(--accent-soft); color:#fff;
+    font-size:11px; font-weight:700; border-radius:99px; padding:1px 9px; letter-spacing:1px;}
+  .acts{display:flex; gap:10px; margin-top:12px;}
+  .act{flex:1; height:44px; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; transition:transform .08s;}
+  .act:active{transform:scale(.97);}
+  .act-copy{border:none; background:var(--ink); color:#FFE9D6;}
+  .act-dy{border:1.5px solid var(--line); background:#fff; color:var(--ink);}
+  .dy-note{font-size:11.5px; color:var(--ink2); margin-top:8px;}
+  .empty{grid-column:1/-1; text-align:center; color:var(--ink2); background:#fff; border:1.5px dashed var(--line);
+    border-radius:18px; padding:36px 16px; font-size:14px;}
+
+  /* ---------- 页脚 ---------- */
+  footer{border-top:1px solid var(--line); margin-top:8px; padding:22px 0 40px; color:var(--ink2); font-size:13px;}
+  footer h4{color:var(--ink); font-size:14.5px; margin:14px 0 6px;}
+  footer ol{margin:6px 0; padding-left:20px;}
+  footer li{margin:3px 0;}
+
+  /* ---------- 动态扩展（配图/AI建卡/数据更新） ---------- */
+  .imgpick{display:block; background:#FFF9F1; border:1.5px dashed var(--line); border-radius:12px;
+    padding:11px 12px; font-size:14px; color:var(--ink2); cursor:pointer; text-align:center;}
+  .imgpick:hover{border-color:var(--accent-soft); color:var(--accent-deep);}
+  .imgpick.has{border-color:var(--ok); color:var(--ok); font-weight:700;}
+  .linkish{background:none; border:none; color:var(--accent-deep); font-size:13px; font-weight:700;
+    cursor:pointer; padding:2px 0; text-decoration:underline; text-underline-offset:3px;}
+  .modal{position:fixed; inset:0; z-index:110; display:none; align-items:center; justify-content:center;
+    background:rgba(24,13,6,.6); padding:16px;}
+  .modal.on{display:flex;}
+  .mbox{background:var(--card); border-radius:18px; padding:18px; width:min(560px,94vw);
+    box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .mbox h3{margin:0 0 6px; font-size:17px;}
+  .mhint{margin:0 0 10px; font-size:13px; color:var(--ink2);}
+  .mbox textarea{width:100%; box-sizing:border-box; border:1.5px solid var(--line); border-radius:12px;
+    padding:10px 12px; font-size:14px; line-height:1.7; font-family:inherit; background:#FFF9F1; resize:vertical;}
+  .mbox .btns{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+  .btn-ghost{background:#F4E7D7; color:var(--ink2);}
+  .dsrow{display:flex; gap:8px; margin:8px 0; flex-wrap:wrap;}
+  .dsrow input{flex:1; min-width:200px; height:40px; border:1.5px solid var(--line); border-radius:10px;
+    padding:0 10px; font-size:13px; background:#FFF9F1; color:var(--ink); box-sizing:border-box;}
+  .mini{border:1.5px solid var(--line); background:#fff; color:var(--ink); border-radius:10px;
+    padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mini:hover{border-color:var(--accent-soft);}
+  .filemini{display:inline-flex; align-items:center; position:relative; overflow:hidden;}
+  .fhint{font-size:12px; color:var(--ink2); margin:6px 0 0;}
+
+  /* ---------- 灯箱 ---------- */
+  .lightbox{position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center;
+    background:rgba(24,13,6,.92);}
+  .lightbox.on{display:flex;}
+  .lb-inner{position:relative; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;}
+  .lb-img{max-width:min(1000px,94vw); max-height:76vh; border-radius:14px; object-fit:contain; box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .lb-cap{color:#F3E5D3; margin-top:14px; font-size:14px; text-align:center;}
+  .lb-cap small{display:block; color:#B99C82; font-size:12px; margin-top:3px;}
+  .lb-count{color:#C9AD91; font-size:12.5px; margin-top:8px; letter-spacing:2px;}
+  .lb-btn{position:absolute; z-index:5; border:none; cursor:pointer; border-radius:50%;
+    background:rgba(255,253,249,.92); color:var(--ink); font-size:18px;
+    width:46px; height:46px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,.3);}
+  .lb-close{top:calc(14px + env(safe-area-inset-top)); right:14px;}
+  .lb-prev{left:10px; top:50%; transform:translateY(-50%);}
+  .lb-next{right:10px; top:50%; transform:translateY(-50%);}
+  @media(max-width:520px){ .lb-btn{width:42px;height:42px;} }
+
+  /* ---------- toast ---------- */
+  .toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px); z-index:120;
+    background:var(--ink); color:#FFE9D6; padding:11px 20px; border-radius:999px; font-size:14px; font-weight:600;
+    opacity:0; pointer-events:none; transition:all .3s; max-width:86vw; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .toast.on{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="hero container">
+  <span class="badge">🛰️ 干饭人觅食提示词库</span>
+  <h1>美食<span class="hl">发现雷达</span></h1>
+  <p class="sub">12 个觅食场景 × 61 家苏州好店 × 每家一段能直接抄给 AI 的提示词。滑动卡片看店，点复制带走，再把你的抖音宝藏丢进来。</p>
+  <div class="stats" id="stats"></div>
+
+  <!-- 重点：丢抖音链接收录 -->
+  <section class="collect" id="collect">
+    <h2><span class="pulse"></span>丢抖音链接，自动收录</h2>
+    <div class="row">
+      <input id="linkInput" type="url" inputmode="url" placeholder="粘贴抖音视频链接，如 https://v.douyin.com/xxxx 或 iesdouyin.com/share/video/…">
+    </div>
+    <div class="row two">
+      <input id="nameInput" type="text" maxlength="30" placeholder="店名（选填）">
+      <select id="sceneSelect"></select>
+    </div>
+    <div class="row">
+      <input id="noteInput" type="text" maxlength="60" placeholder="备注（选填）：招牌菜 / 地址 / 人均…">
+    </div>
+    <div class="row">
+      <label class="imgpick" id="imgPick"><input id="imgInput" type="file" accept="image/*" hidden>🖼 配张图（选填，本地压缩保存）</label>
+    </div>
+    <div class="btns">
+      <button class="btn btn-main" id="collectBtn" type="button">📌 收录到雷达</button>
+      <button class="btn btn-ai" id="aiBtn" type="button">🤖 让 AI 帮我提取</button>
+    </div>
+    <p class="hint">收录存在你自己浏览器的 localStorage 里，刷新、重开都还在；「让 AI 帮我提取」会把一段提取提示词复制到剪贴板，粘给豆包 / DeepSeek 即可自动补全店名、招牌菜、人均、地址。</p>
+    <p style="margin:6px 2px 0;"><button class="linkish" id="aiPasteBtn" type="button">📥 已经拿到 AI 的回复了？粘贴进来，自动识别建卡 →</button></p>
+  </section>
+</header>
+
+<section class="howto container">
+  <h2>这页能干嘛</h2>
+  <p class="lead">四步用起来，今天就想好晚上吃什么。</p>
+  <div class="how-grid">
+    <div class="how"><b>① 选场景</b><p>12 张雷达卡：逛吃、老店、一人食、深夜食堂、避坑排雷…点顶部标签筛选。</p></div>
+    <div class="how"><b>② 滑卡片</b><p>每张卡是一个场景，顶部轮播图左右滑，下面的店名、提示词跟着一起换。</p></div>
+    <div class="how"><b>③ 抄提示词</b><p>点「复制提示词」直接粘给豆包 / DeepSeek，让它把 [城市] 换成你所在的地方、排出完整觅食计划。</p></div>
+    <div class="how"><b>④ 建自己的库</b><p>刷到好吃的抖音视频？丢链接进来收录，攒成只属于你的觅食雷达。</p></div>
+  </div>
+</section>
+
+<nav class="filterbar">
+  <div class="container"><div class="chips" id="chips"></div></div>
+</nav>
+
+<main class="pool container">
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <div class="container">
+    <h4>📅 下次更新预告</h4>
+    <ol>
+      <li>✅ 已上线：粘贴 AI 回复自动建卡、收藏配图、收藏导出/导入、数据源远程自动更新</li>
+      <li>打卡清单导出：把收藏的店一键生成周末觅食路线</li>
+      <li>更多城市：苏州 → 无锡 / 常州 / 上海，提示词里的 [城市] 会自动跟着换</li>
+    </ol>
+    <h4>📌 收录 & 来源说明</h4>
+    <ol>
+      <li>你收录的内容只保存在本机浏览器 localStorage，不上传服务器；清除浏览器数据会丢失，请自行备份重要链接。</li>
+      <li>页面菜品图为免费图库（Wikimedia Commons / Unsplash）的真实菜品实拍，作为品类示意图，非对应门店实拍，会逐步替换为真实探店图。</li>
+      <li>每家店的「抖音」按钮默认跳转到抖音站内搜索该店（真实可用），刷到具体探店视频后可用顶部收录框把视频链接存进来。</li>
+      <li>店铺信息（人均、地址）仅供参考，可能有变动，出发前以点评平台 / 店家为准。</li>
+    </ol>
+    <h4>🔄 动态数据 · 实时更新</h4>
+    <p style="margin:4px 0;">当前数据版本：<b id="verText">-</b>。数据都在 <b>assets/data.js</b> 里，加店铺 / 加场景只改它，页面自动渲染（字段说明见《数据编辑指南.md》）。</p>
+    <div class="dsrow">
+      <input id="dsInput" placeholder="远程数据源 URL（选填，GitHub / Gitee raw 等 JSON 地址）">
+      <button class="mini" id="dsSave" type="button">保存数据源</button>
+      <button class="mini" id="dsCheck" type="button">立即检查更新</button>
+    </div>
+    <p class="fhint">设置数据源后：每次打开页面自动拉取，版本号更高就自动应用并缓存；页面开着时每 15 分钟也自动查一次。GitHub raw 地址形如 https://raw.githubusercontent.com/用户名/仓库/main/data.json</p>
+    <div class="dsrow">
+      <button class="mini" id="expBtn" type="button">⬇️ 导出我的收藏</button>
+      <label class="mini filemini">⬆️ 导入收藏备份<input id="impInput" type="file" accept="application/json,.json" hidden></label>
+    </div>
+    <p style="margin-top:16px;">美食发现雷达 · 为干饭人做的觅食提示词库 · <span id="year"></span></p>
+  </div>
+</footer>
+
+<!-- 灯箱 -->
+<div class="lightbox" id="lightbox" role="dialog" aria-label="图片放大查看">
+  <div class="lb-inner" id="lbInner">
+    <button class="lb-btn lb-close" id="lbClose" type="button" aria-label="关闭">✕</button>
+    <button class="lb-btn lb-prev" id="lbPrev" type="button" aria-label="上一张">‹</button>
+    <img class="lb-img" id="lbImg" alt="">
+    <div class="lb-cap" id="lbCap"></div>
+    <div class="lb-count" id="lbCount"></div>
+    <button class="lb-btn lb-next" id="lbNext" type="button" aria-label="下一张">›</button>
+  </div>
+</div>
+
+<!-- AI 结果解析 -->
+<div class="modal" id="aiModal">
+  <div class="mbox">
+    <h3>📥 粘贴 AI 解析结果，自动建卡</h3>
+    <p class="mhint">把豆包 / DeepSeek 的回复整段粘进来，我自动识别「店名 / 招牌菜 / 人均 / 地址」，填进上面的收录框。</p>
+    <textarea id="aiText" rows="8" placeholder="例如：&#10;店名：鑫震源·苏式生煎&#10;招牌菜：生煎、咖喱牛肉汤&#10;人均：18&#10;地址：姑苏区临顿路xxx号"></textarea>
+    <div class="btns">
+      <button class="btn btn-main" id="aiParseBtn" type="button">解析并填入</button>
+      <button class="btn btn-ghost" id="aiCancelBtn" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/data.js"></script>
+<script>
+(function(){
+  "use strict";
+  var DATA = window.FOOD_DATA || {scenes:[], version:0};
+  var LS_KEY = "meishiRadar.userCards.v1";
+  var LS_CACHE = "meishiRadar.dataCache.v1";
+  var LS_SOURCE = "meishiRadar.dataSource";
+  var DEFAULT_COVER = "assets/我的收录_默认封面.jpg";
+  var pendingImg = null;
+  var $ = function(id){ return document.getElementById(id); };
+  var grid = $("grid"), chipsBox = $("chips");
+  var state = { filter:"all", userCards: loadCards() };
+
+  function loadCards(){
+    try{
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return []; }
+  }
+  function saveCards(){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(state.userCards)); }
+    catch(e){ toast("保存失败：浏览器存储不可用"); }
+  }
+  function douyinSearchHref(q){
+    return "https://www.douyin.com/search/" + encodeURIComponent(q);
+  }
+  function userPrompt(c){
+    var p = "我在[城市]。" + (c.url ? "这是我在抖音刷到的觅食线索：" + c.url + "。" : "这是我的一条觅食线索。");
+    if(c.note) p += "补充信息：" + c.note + "。";
+    p += "帮我提取店名、招牌菜、人均价格、地址，并整理成一段可以直接使用的觅食提示词。";
+    return p;
+  }
+
+  /* ---------- toast & copy ---------- */
+  var toastEl = $("toast"), toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("on"); }, 1800);
+  }
+  function copyText(t, okMsg){
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = t;
+      ta.style.cssText = "position:fixed;left:-999px;top:0;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try{ ok = document.execCommand("copy"); }catch(e){}
+      document.body.removeChild(ta);
+      if(ok){ window.__lastCopy = t; toast(okMsg); }
+      else toast("复制失败，请长按文字手动复制");
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){
+        window.__lastCopy = t; toast(okMsg);
+      }).catch(fallback);
+    }else fallback();
+  }
+
+  /* ---------- 轮播组件（滑动/圆点/箭头，联动回调） ---------- */
+  function makeCarousel(stores){
+    var car = document.createElement("div"); car.className = "car";
+    var track = document.createElement("div"); track.className = "track";
+    var dots = document.createElement("div"); dots.className = "dots";
+    var slides = [];
+    stores.forEach(function(s, i){
+      var sl = document.createElement("figure"); sl.className = "slide";
+      var img = document.createElement("img");
+      img.src = s.img; img.alt = s.name + " " + s.dish; img.loading = i === 0 ? "eager" : "lazy"; img.decoding = "async"; img.draggable = false;
+      sl.appendChild(img);
+      var nm = document.createElement("span"); nm.className = "sname"; nm.textContent = "🍽️ " + s.name;
+      sl.appendChild(nm);
+      var zm = document.createElement("span"); zm.className = "zoom"; zm.textContent = "⤢";
+      sl.appendChild(zm);
+      track.appendChild(sl); slides.push(sl);
+      var d = document.createElement("button");
+      d.type = "button"; d.className = "dot" + (i === 0 ? " active" : "");
+      d.setAttribute("aria-label", "第" + (i+1) + "家：" + s.name);
+      d.addEventListener("click", function(){ setIndex(i, true); });
+      dots.appendChild(d);
+    });
+    var prev = document.createElement("button");
+    prev.type = "button"; prev.className = "navb prev"; prev.textContent = "‹"; prev.setAttribute("aria-label","上一家");
+    var next = document.createElement("button");
+    next.type = "button"; next.className = "navb next"; next.textContent = "›"; next.setAttribute("aria-label","下一家");
+    car.appendChild(track); car.appendChild(prev); car.appendChild(next); car.appendChild(dots);
+
+    var idx = 0, onIndex = function(){}, dragDist = 0;
+    function paint(){
+      var ds = dots.children;
+      for(var i = 0; i < ds.length; i++) ds[i].classList.toggle("active", i === idx);
+    }
+    function setIndex(i, scroll){
+      idx = Math.max(0, Math.min(stores.length - 1, i));
+      paint();
+      if(scroll) track.scrollTo({left: idx * track.clientWidth, behavior:"smooth"});
+      onIndex(idx);
+    }
+    var ticking = false;
+    track.addEventListener("scroll", function(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        ticking = false;
+        var w = track.clientWidth || 1;
+        var i = Math.round(track.scrollLeft / w);
+        i = Math.max(0, Math.min(stores.length - 1, i));
+        if(i !== idx){ idx = i; paint(); onIndex(idx); }
+      });
+    }, {passive:true});
+    /* 桌面端鼠标拖拽（触屏走原生滑动） */
+    var downX = 0, startSL = 0, dragging = false;
+    track.addEventListener("pointerdown", function(e){
+      if(e.pointerType !== "mouse") return;
+      dragging = true; dragDist = 0; downX = e.clientX; startSL = track.scrollLeft;
+      track.classList.add("dragging");
+    });
+    track.addEventListener("pointermove", function(e){
+      if(!dragging) return;
+      var dx = e.clientX - downX;
+      dragDist = Math.max(dragDist, Math.abs(dx));
+      track.scrollLeft = startSL - dx;
+    });
+    function endDrag(){
+      if(!dragging) return;
+      dragging = false;
+      track.classList.remove("dragging");
+      setIndex(Math.round(track.scrollLeft / (track.clientWidth || 1)), true);
+    }
+    track.addEventListener("pointerup", endDrag);
+    track.addEventListener("pointerleave", endDrag);
+    track.addEventListener("click", function(e){
+      if(dragDist > 6) return;                       // 拖拽不算点击
+      var sl = e.target.closest ? e.target.closest(".slide") : null;
+      if(sl){
+        var i = slides.indexOf(sl);
+        if(i >= 0) onOpenLightbox(stores, i);        // 由渲染层注入
+      }
+    });
+    prev.addEventListener("click", function(){ setIndex(idx - 1, true); });
+    next.addEventListener("click", function(){ setIndex(idx + 1, true); });
+
+    return {
+      el: car,
+      setSync: function(fn){ onIndex = fn; },
+      setOpen: function(fn){ onOpenLightbox = fn; }
+    };
+  }
+
+  /* ---------- 店铺信息区（随轮播切换） ---------- */
+  function makeInfo(stores, isUser){
+    var wrap = document.createElement("div"); wrap.className = "info";
+    var inner = document.createElement("div"); inner.className = "swap";
+    var storeRow = document.createElement("div"); storeRow.className = "store-row";
+    var sn = document.createElement("span"); sn.className = "sn";
+    var dish = document.createElement("span"); dish.className = "dish";
+    var meta = document.createElement("p"); meta.className = "meta";
+    var promptBox = document.createElement("div"); promptBox.className = "promptBox";
+    var ph = document.createElement("span"); ph.className = "ph"; ph.textContent = "觅食提示词";
+    var ptxt = document.createElement("span"); ptxt.className = "ptxt";
+    promptBox.appendChild(ph); promptBox.appendChild(ptxt);
+    var acts = document.createElement("div"); acts.className = "acts";
+    var copyBtn = document.createElement("button"); copyBtn.type = "button";
+    copyBtn.className = "act act-copy"; copyBtn.textContent = "📋 复制提示词";
+    var dyBtn = document.createElement("a"); dyBtn.className = "act act-dy"; dyBtn.target = "_blank"; dyBtn.rel = "noopener";
+    acts.appendChild(copyBtn); acts.appendChild(dyBtn);
+    var note = document.createElement("p"); note.className = "dy-note";
+    inner.appendChild(storeRow); inner.appendChild(meta); inner.appendChild(promptBox); inner.appendChild(acts); inner.appendChild(note);
+    storeRow.appendChild(sn); storeRow.appendChild(dish);
+    wrap.appendChild(inner);
+
+    copyBtn.addEventListener("click", function(){
+      copyBtn.dataset.prompt = ptxt.textContent;
+      copyText(ptxt.textContent, "已复制提示词 ✓ 拿去喂给豆包吧");
+    });
+
+    function paint(i){
+      var s = stores[i];
+      sn.textContent = s.name;
+      dish.textContent = s.dish;
+      meta.textContent = (s.price ? s.price + (s.area ? " · " + s.area : "") : (s.area || ""));
+      ptxt.textContent = s.prompt;
+      if(isUser){
+        if(s.douyinV){ dyBtn.href = s.douyinV; dyBtn.textContent = "🎵 打开抖音视频 ↗"; }
+        else{ dyBtn.removeAttribute("href"); dyBtn.textContent = "🎵 抖音（未填链接）"; }
+        note.textContent = "来自你的收录 · 店名/备注可在顶部随时补充";
+      }
+      else{ dyBtn.href = douyinSearchHref(s.douyinQ); dyBtn.textContent = "🎵 抖音看这家店"; note.textContent = "跳转抖音站内搜索「" + s.douyinQ + "」，探店视频实时看；也可把喜欢的视频用顶部收录框存进来。"; }
+      inner.classList.remove("swap"); void inner.offsetWidth; inner.classList.add("swap");
+    }
+    paint(0);
+    return { el: wrap, paint: paint };
+  }
+
+  /* ---------- 卡片渲染 ---------- */
+  function sceneChip(name, mine){
+    var t = document.createElement("span");
+    t.className = "scene-tag";
+    t.textContent = name;
+    return t;
+  }
+  function buildSceneCard(sc){
+    var card = document.createElement("article");
+    card.className = "card";
+    card.dataset.scene = sc.id;
+    var head = document.createElement("div"); head.className = "card-head";
+    var row = document.createElement("div"); row.className = "head-row";
+    var no = document.createElement("span"); no.className = "no"; no.textContent = sc.no;
+    row.appendChild(no); row.appendChild(sceneChip(sc.emoji + " " + sc.name));
+    var h3 = document.createElement("h3"); h3.textContent = sc.name + "怎么吃";
+    var tg = document.createElement("p"); tg.className = "tagline"; tg.textContent = sc.tagline;
+    head.appendChild(row); head.appendChild(h3); head.appendChild(tg);
+    var car = makeCarousel(sc.stores);
+    var info = makeInfo(sc.stores, false);
+    car.setSync(function(i){ info.paint(i); });
+    card.appendChild(head); card.appendChild(car.el); card.appendChild(info.el);
+    return card;
+  }
+  function buildUserCard(c, isNew){
+    var store = {
+      name: c.name || "我的觅食线索",
+      dish: c.sceneName ? c.sceneName : "抖音收录",
+      price: "", area: c.createdAt ? "收录于 " + c.createdAt : "",
+      img: c.img || DEFAULT_COVER,
+      prompt: userPrompt(c),
+      douyinV: c.url || ""
+    };
+    var card = document.createElement("article");
+    card.className = "card" + (isNew ? " user-new" : "");
+    card.dataset.user = "1";
+    if(c.sceneId && c.sceneId !== "mine") card.dataset.scene = c.sceneId;
+    var head = document.createElement("div"); head.className = "card-head";
+    var row = document.createElement("div"); row.className = "head-row";
+    var no = document.createElement("span"); no.className = "no mine"; no.textContent = "📌";
+    row.appendChild(no); row.appendChild(sceneChip("我的收录"));
+    if(c.sceneId && c.sceneId !== "mine"){
+      var sc = DATA.scenes.find(function(s){ return s.id === c.sceneId; });
+      if(sc) row.appendChild(sceneChip(sc.emoji + " " + sc.name));
+    }
+    var del = document.createElement("button");
+    del.type = "button"; del.className = "del"; del.textContent = "🗑 删除";
+    del.addEventListener("click", function(){
+      if(confirm("删除这条收录？删除后不可恢复。")){
+        state.userCards = state.userCards.filter(function(x){ return x.id !== c.id; });
+        saveCards(); render(); toast("已删除");
+      }
+    });
+    row.appendChild(del);
+    var h3 = document.createElement("h3"); h3.textContent = c.name || "我的觅食线索";
+    var tg = document.createElement("p"); tg.className = "tagline";
+    tg.textContent = c.note || "来自你的抖音收藏，喂给 AI 自动补全信息。";
+    head.appendChild(row); head.appendChild(h3); head.appendChild(tg);
+    var car = makeCarousel([store]);
+    var info = makeInfo([store], true);
+    car.setSync(function(i){ info.paint(i); });
+    card.appendChild(head); card.appendChild(car.el); card.appendChild(info.el);
+    return card;
+  }
+
+  /* ---------- 筛选 & 网格 ---------- */
+  function chipCount(key){
+    if(key === "all") return state.userCards.length + DATA.scenes.length;
+    if(key === "mine") return state.userCards.length;
+    return DATA.scenes.some(function(s){ return s.id === key; }) ? 1 : 0;
+  }
+  function renderChips(){
+    chipsBox.innerHTML = "";
+    var defs = [{key:"all", label:"🍜 全部"}];
+    DATA.scenes.forEach(function(sc){
+      defs.push({key: sc.id, label: sc.emoji + " " + sc.name});
+    });
+    defs.push({key:"mine", label:"📌 我的收录", n: state.userCards.length});
+    defs.forEach(function(d){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (state.filter === d.key ? " active" : "");
+      b.innerHTML = "";
+      b.textContent = d.label;
+      if(typeof d.n === "number" && d.n > 0){
+        var n = document.createElement("span"); n.className = "n"; n.textContent = d.n;
+        b.appendChild(n);
+      }
+      b.addEventListener("click", function(){
+        state.filter = d.key;
+        renderChips(); renderGrid();
+      });
+      chipsBox.appendChild(b);
+    });
+  }
+  function renderGrid(){
+    grid.innerHTML = "";
+    var f = state.filter;
+    var users = state.userCards.filter(function(c){
+      return f === "all" || f === "mine" || c.sceneId === f;
+    });
+    if(f === "mine" || f === "all"){
+      users.forEach(function(c){ grid.appendChild(buildUserCard(c, false)); });
+    }
+    if(f !== "mine"){
+      DATA.scenes.forEach(function(sc){
+        if(f === "all" || sc.id === f) grid.appendChild(buildSceneCard(sc));
+      });
+    }
+    if(!grid.children.length){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = f === "mine"
+        ? "这里还空着 🈳 去顶部粘贴一条抖音链接，收录第一张你的卡片吧。"
+        : "这个分类暂时没有卡片。";
+      grid.appendChild(e);
+    }
+  }
+  function render(){ renderChips(); renderGrid(); }
+
+  /* ---------- 收录 & AI 提取 ---------- */
+  var sceneSelect = $("sceneSelect");
+  function fillSceneSelect(){
+    var keep = sceneSelect.value;
+    sceneSelect.innerHTML = "";
+    var o = document.createElement("option");
+    o.value = "mine"; o.textContent = "我的收录（默认）";
+    sceneSelect.appendChild(o);
+    DATA.scenes.forEach(function(sc){
+      var op = document.createElement("option");
+      op.value = sc.id; op.textContent = sc.emoji + " " + sc.name;
+      sceneSelect.appendChild(op);
+    });
+    sceneSelect.value = (keep && sceneSelect.querySelector('option[value="' + keep + '"]')) ? keep : "mine";
+  }
+  function collect(){
+    var url = $("linkInput").value.trim();
+    var name = $("nameInput").value.trim();
+    var note = $("noteInput").value.trim();
+    var sceneId = sceneSelect.value;
+    if(!url){ toast("先粘贴抖音链接再收录哦"); $("linkInput").focus(); return; }
+    if(!/douyin\.com|iesdouyin\.com/i.test(url)){ toast("这看起来不是抖音链接（需含 douyin.com）"); return; }
+    var sc = DATA.scenes.find(function(s){ return s.id === sceneId; });
+    state.userCards.unshift({
+      id: Date.now() + "" + Math.floor(Math.random() * 1000),
+      url: url, name: name, note: note,
+      sceneId: sceneId, sceneName: sc ? sc.name : "",
+      img: pendingImg || "",
+      createdAt: new Date().toLocaleDateString("zh-CN")
+    });
+    saveCards();
+    $("linkInput").value = ""; $("nameInput").value = ""; $("noteInput").value = "";
+    pendingImg = null; resetImgPick();
+    state.filter = "all";
+    render();
+    toast("收录成功 ✓ 已存到本地，刷新也不会丢");
+    var first = grid.querySelector("[data-user]");
+    if(first){
+      first.classList.add("user-new");
+      first.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+  function aiExtract(){
+    var url = $("linkInput").value.trim();
+    if(!url){ toast("先粘贴抖音链接，我再帮你拼提示词"); $("linkInput").focus(); return; }
+    copyText("帮我看这个抖音视频 " + url + "，提取店名、招牌菜、人均价格、地址，整理成一段觅食提示词",
+             "提取提示词已复制 ✓ 去粘贴给豆包 / DeepSeek");
+  }
+  $("collectBtn").addEventListener("click", collect);
+  $("aiBtn").addEventListener("click", aiExtract);
+  $("linkInput").addEventListener("keydown", function(e){ if(e.key === "Enter") collect(); });
+
+  /* ---------- 灯箱 ---------- */
+  var lb = $("lightbox"), lbImg = $("lbImg"), lbCap = $("lbCap"), lbCount = $("lbCount");
+  var lbList = [], lbIdx = 0;
+  function lbPaint(){
+    var it = lbList[lbIdx];
+    lbImg.src = it.img; lbImg.alt = it.cap;
+    lbCap.innerHTML = "";
+    lbCap.textContent = it.cap;
+    if(it.credit){
+      var sm = document.createElement("small");
+      sm.textContent = "图源：" + it.credit + "（真实菜品实拍 · 示意图）";
+      lbCap.appendChild(sm);
+    }
+    lbCount.textContent = (lbIdx + 1) + " / " + lbList.length;
+  }
+  function lbOpen(list, i){
+    lbList = list; lbIdx = i; lbPaint();
+    lb.classList.add("on");
+    document.body.style.overflow = "hidden";
+  }
+  function lbCloseFn(){ lb.classList.remove("on"); document.body.style.overflow = ""; }
+  function lbGo(d){ lbIdx = (lbIdx + d + lbList.length) % lbList.length; lbPaint(); }
+  $("lbClose").addEventListener("click", lbCloseFn);
+  $("lbPrev").addEventListener("click", function(){ lbGo(-1); });
+  $("lbNext").addEventListener("click", function(){ lbGo(1); });
+  lb.addEventListener("click", function(e){ if(e.target === lb || e.target === $("lbInner")) lbCloseFn(); });
+  document.addEventListener("keydown", function(e){
+    if(!lb.classList.contains("on")) return;
+    if(e.key === "Escape") lbCloseFn();
+    if(e.key === "ArrowLeft") lbGo(-1);
+    if(e.key === "ArrowRight") lbGo(1);
+  });
+  var tX = 0, tY = 0;
+  lb.addEventListener("touchstart", function(e){ tX = e.touches[0].clientX; tY = e.touches[0].clientY; }, {passive:true});
+  lb.addEventListener("touchend", function(e){
+    var dx = e.changedTouches[0].clientX - tX;
+    var dy = e.changedTouches[0].clientY - tY;
+    if(Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) lbGo(dx > 0 ? -1 : 1);
+  }, {passive:true});
+
+  /* 轮播点图 → 打开该卡整组图 */
+  var currentGroup = [];
+  function openLightboxFor(stores, i){
+    var list = stores.map(function(s){
+      var credit = (s.img && s.img.indexOf("data:") === 0) ? "我的收藏图"
+        : (s.imgSrc === "unsplash" ? "Unsplash" : (s.imgSrc ? "Wikimedia Commons" : ""));
+      return { img: s.img, cap: s.name + " · " + s.dish, credit: credit };
+    });
+    lbOpen(list, i);
+  }
+  var _origMake = makeCarousel;
+
+  /* ---------- 动态数据：版本 / 远程更新 ---------- */
+  function currentVersion(){ return (window.FOOD_DATA && window.FOOD_DATA.version) || 0; }
+  function renderStats(){
+    var stats = $("stats");
+    stats.innerHTML = "";
+    var storeCount = 0;
+    DATA.scenes.forEach(function(sc){ storeCount += sc.stores.length; });
+    [
+      DATA.scenes.length + " 个场景",
+      storeCount + " 家好店",
+      storeCount + " 段提示词",
+      "[城市] 占位符 · 默认苏州",
+      "数据 v" + currentVersion() + (DATA.updatedAt ? " · " + DATA.updatedAt : "")
+    ].forEach(function(t){
+      var s = document.createElement("span"); s.textContent = t; stats.appendChild(s);
+    });
+    var ver = $("verText");
+    if(ver) ver.textContent = "v" + currentVersion() + (DATA.updatedAt ? " · 更新于 " + DATA.updatedAt : "");
+  }
+  function applyData(data, silent){
+    if(!data || !Array.isArray(data.scenes)) return false;
+    window.FOOD_DATA = data;
+    DATA = data;
+    try{ localStorage.setItem(LS_CACHE, JSON.stringify(data)); }catch(e){}
+    fillSceneSelect();
+    renderStats();
+    render();
+    if(!silent) toast("✨ 数据已更新到 v" + currentVersion());
+    return true;
+  }
+  function checkUpdate(manual){
+    var src = "";
+    try{ src = localStorage.getItem(LS_SOURCE) || ""; }catch(e){}
+    if(!src){
+      if(manual) toast("先在页脚「动态数据」里填数据源 URL");
+      return Promise.resolve(false);
+    }
+    return fetch(src, {cache:"no-store"}).then(function(r){ return r.json(); }).then(function(json){
+      if(json && Array.isArray(json.scenes) && (json.version || 0) > currentVersion()){
+        applyData(json);
+        return true;
+      }
+      if(manual) toast("已是最新版本 v" + currentVersion());
+      return false;
+    }).catch(function(err){
+      if(manual) toast("检查更新失败：" + (err && err.message ? err.message : "网络不可达"));
+      return false;
+    });
+  }
+
+  /* ---------- AI 结果解析 → 自动建卡 ---------- */
+  function parseAiText(text){
+    var out = { name: "", dishes: "", price: "", addr: "", note: "" };
+    var m;
+    m = text.match(/店\s*名[：:]\s*([^\n]+)/);                 if(m) out.name = m[1].trim();
+    m = text.match(/招牌菜[：:]([^;；\n]+)/) || text.match(/必点[：:]([^;；\n]+)/); if(m) out.dishes = m[1].trim();
+    m = text.match(/人均[：:]?\s*[¥￥]?\s*(\d+)/) || text.match(/[¥￥]\s*(\d+)/);   if(m) out.price = "人均¥" + m[1];
+    m = text.match(/地址[：:]\s*([^\n]+)/) || text.match(/位置[：:]\s*([^\n]+)/);   if(m) out.addr = m[1].trim();
+    if(!out.name){
+      var lines = text.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean);
+      if(lines.length && lines[0].length <= 24) out.name = lines[0].replace(/^[#\d\.\s]+/, "").trim();
+    }
+    out.note = [out.dishes, out.price, out.addr].filter(Boolean).join(" ｜ ");
+    return out;
+  }
+  function openAiModal(){ $("aiText").value = ""; $("aiModal").classList.add("on"); $("aiText").focus(); }
+  function closeAiModal(){ $("aiModal").classList.remove("on"); }
+
+  /* ---------- 收藏配图（本地压缩） ---------- */
+  function bindImgInput(){
+    var inp = $("imgInput");
+    if(!inp) return;
+    inp.addEventListener("change", function(){
+      var f = inp.files && inp.files[0];
+      if(!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        var im = new Image();
+        im.onload = function(){
+          var max = 900;
+          var sc = Math.min(1, max / Math.max(im.width, im.height));
+          var cv = document.createElement("canvas");
+          cv.width = Math.round(im.width * sc);
+          cv.height = Math.round(im.height * sc);
+          cv.getContext("2d").drawImage(im, 0, 0, cv.width, cv.height);
+          try{
+            pendingImg = cv.toDataURL("image/jpeg", 0.72);
+            var pk = $("imgPick");
+            pk.classList.add("has");
+            pk.innerHTML = '<input id="imgInput" type="file" accept="image/*" hidden>✓ 已配图（收录时生效，点此可更换）';
+            bindImgInput();
+            toast("图片已就绪 ✓");
+          }catch(e){ toast("图片处理失败"); }
+        };
+        im.src = reader.result;
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+  function resetImgPick(){
+    var pk = $("imgPick");
+    pk.classList.remove("has");
+    pk.innerHTML = '<input id="imgInput" type="file" accept="image/*" hidden>🖼 配张图（选填，本地压缩保存）';
+    bindImgInput();
+  }
+
+  /* ---------- 导出 / 导入收藏 ---------- */
+  function exportCards(){
+    var blob = new Blob([JSON.stringify(state.userCards, null, 1)], {type:"application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "meishi-radar-collections.json";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 800);
+    toast("已导出 " + state.userCards.length + " 条收藏 ✓");
+  }
+  function importCards(arr){
+    if(!Array.isArray(arr)) return 0;
+    var ids = {};
+    state.userCards.forEach(function(c){ ids[c.id] = 1; });
+    var added = 0;
+    arr.forEach(function(c){
+      if(!c || (!c.url && !c.name)) return;
+      if(c.id && !ids[c.id]){ state.userCards.push(c); ids[c.id] = 1; added++; }
+      else if(!c.id){ c.id = "imp" + Date.now() + added; state.userCards.push(c); ids[c.id] = 1; added++; }
+    });
+    if(added){ saveCards(); state.filter = "all"; render(); }
+    return added;
+  }
+
+  /* ---------- init ---------- */
+  function onOpenLightbox(stores, i){ openLightboxFor(stores, i); }
+  function init(){
+    fillSceneSelect();
+    renderStats();
+    $("year").textContent = new Date().getFullYear();
+    window.__openLb = openLightboxFor;
+    render();
+
+    /* AI 建卡闭环 */
+    $("aiPasteBtn").addEventListener("click", openAiModal);
+    $("aiCancelBtn").addEventListener("click", closeAiModal);
+    $("aiModal").addEventListener("click", function(e){ if(e.target === $("aiModal")) closeAiModal(); });
+    $("aiParseBtn").addEventListener("click", function(){
+      var t = $("aiText").value.trim();
+      if(!t){ toast("先粘贴 AI 的回复内容"); return; }
+      var p = parseAiText(t);
+      if(p.name) $("nameInput").value = p.name.slice(0, 30);
+      $("noteInput").value = p.note.slice(0, 60);
+      closeAiModal();
+      $("collect").scrollIntoView({behavior:"smooth", block:"center"});
+      toast(p.name ? "已识别「" + p.name + "」，补上抖音链接点收录" : "已填入信息，请确认后点收录");
+    });
+
+    /* 收藏配图 */
+    bindImgInput();
+
+    /* 数据源 / 更新检查 */
+    var dsInput = $("dsInput");
+    try{ dsInput.value = localStorage.getItem(LS_SOURCE) || ""; }catch(e){}
+    $("dsSave").addEventListener("click", function(){
+      try{ localStorage.setItem(LS_SOURCE, dsInput.value.trim()); }catch(e){}
+      toast(dsInput.value.trim() ? "数据源已保存 ✓ 打开页面会自动检查更新" : "数据源已清空");
+    });
+    $("dsCheck").addEventListener("click", function(){ checkUpdate(true); });
+
+    /* 导出 / 导入 */
+    $("expBtn").addEventListener("click", exportCards);
+    $("impInput").addEventListener("change", function(){
+      var f = this.files && this.files[0];
+      if(!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        try{
+          var n = importCards(JSON.parse(reader.result));
+          toast(n ? "导入成功，新增 " + n + " 条收藏 ✓" : "没有新增（可能都已存在）");
+        }catch(e){ toast("导入失败：文件不是有效的收藏备份"); }
+      };
+      reader.readAsText(f);
+      this.value = "";
+    });
+
+    /* 启动：本地缓存的更新版数据先顶上，再查远程 */
+    try{
+      var cached = JSON.parse(localStorage.getItem(LS_CACHE) || "null");
+      if(cached && Array.isArray(cached.scenes) && (cached.version || 0) > currentVersion()){
+        window.FOOD_DATA = cached; DATA = cached;
+        fillSceneSelect(); renderStats(); render();
+      }
+    }catch(e){}
+    var hasSource = false;
+    try{ hasSource = !!(localStorage.getItem(LS_SOURCE) || ""); }catch(e){}
+    if(hasSource) checkUpdate(false);
+    setInterval(function(){ checkUpdate(false); }, 15 * 60 * 1000);
+
+    /* 扩展 / 测试钩子：控制台可用 window.__radar 操作数据 */
+    window.__radar = { applyData: applyData, parseAiText: parseAiText, importCards: importCards,
+      exportCards: exportCards, checkUpdate: checkUpdate, version: currentVersion };
+  }
+  init();
+})();
+</script>
+</body>
+</html>
